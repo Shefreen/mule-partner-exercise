@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+
+	<flow name="trans-national-sapi-implementationFlow" doc:id="d64ab217-dd24-4f7e-a72f-b48b31eda881" >
+		<logger level="INFO" doc:name="Logger" doc:id="ef7b3eb9-6ca4-4a55-988a-eda79289034d" message="trans national sapi input" category="info"/>
+		<ee:transform doc:name="Transform Message" doc:id="1978980d-85aa-4266-8282-5655ab531e15" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.example.org/Bookings/
+---
+{
+	ns0#getRoutes: {
+		in: payload
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="e9f9151c-e10f-4a03-afae-43213524782c" >
+			<wsc:consume operation="getRoutes" doc:name="Consume" doc:id="683e6a7f-e768-4b0f-aedd-258d5809c9a6" config-ref="Web_Service_Consumer_Config">
+			<reconnect count="5" />
+		</wsc:consume>
+			<logger level="INFO" doc:name="Logger" doc:id="d21e1874-169d-4c73-9bb2-43b51273f466" category="info" message="trans national system response" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2b7346a7-a9e9-4e01-9404-745fd5b75427" >
+					<logger level="INFO" doc:name="Logger" doc:id="0c46b5b8-1a43-44a6-9ff3-a6afb45f02b2" message='#[{"error source" : "trans national wsdl error",
+"error description" : error.description}]' category="errors"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="3d5ab451-fd90-4f6c-8d48-75fdc99396ba" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+read(payload.body.getRoutesResponse.out,'application/xml')
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="1157dfe9-7821-41fa-9568-4453d53edff8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.ROUTELIST.*ROUTEINFO map ( rOUTEINFO , indexOfROUTEINFO ) -> {
+	originLocation: {
+		locationCode: rOUTEINFO.ORIGIN default ""
+	},
+	destinationLocation: {
+		locationCode: rOUTEINFO.DESTINATION default ""
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="3e4b55f1-e4d7-4a7e-ab27-d8eb7005db01" message="trans national sapi output" category="info"/>
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2fb00c23-a7e5-465e-a944-c3fc1269f3b7" >
+				<logger level="INFO" doc:name="Logger" doc:id="c8e3d1c4-e47b-401e-9747-b88042b2813c" message='#[{"error source" : "trans national sapi flow",
+"error description" : error.description}]' category="errors"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

@@ -1,0 +1,6 @@
+http:
+  port: "8081"
+  host: "localhost"
+
+wsdl:
+  location: "http://laptop-vbdjslr5:8090/mockBookingsSOAP?WSDL"

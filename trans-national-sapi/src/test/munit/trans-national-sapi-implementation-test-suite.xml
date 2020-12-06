@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="trans-national-sapi-implementation-test-suite.xml" />
+	<munit:test name="trans-national-sapi-implementation-test-suite-trans-national-sapi-implementationFlowTest" doc:id="897e1586-eeab-4aac-93e6-0d7eabab4238" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to trans-national-sapi-implementationFlow" doc:id="4bc1124c-9db4-4f6e-820f-24e5895f714b" name="trans-national-sapi-implementationFlow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="a6b423f4-1e3d-4115-a7d6-d9a33dbc1b62" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

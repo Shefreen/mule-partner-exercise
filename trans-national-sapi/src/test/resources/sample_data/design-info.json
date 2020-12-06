@@ -1,0 +1,9 @@
+{
+  "sampleData": {
+    "f1b7a1fd-94da-48bf-8326-2c6d6fd7ffb2": {},
+    "4352d156-adc7-4851-ade3-00c01f71b373": {
+      "payload": "sample_data/defaultstringtype.json"
+    },
+    "3d5ab451-fd90-4f6c-8d48-75fdc99396ba": {}
+  }
+}

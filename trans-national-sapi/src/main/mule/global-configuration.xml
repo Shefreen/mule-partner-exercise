@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	
+    <http:listener-config name="trans-national-sapi-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}" connectionIdleTimeout="300000"/>
+    </http:listener-config>
+
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="00dad25f-7507-4533-a95a-69d70eed550a" >
+		<wsc:connection wsdlLocation="${wsdl.location}" service="Bookings" port="BookingsSOAP" address="http://LAPTOP-VBDJSLR5:8090/mockBookingsSOAP" soapVersion="SOAP12"/>
+	</wsc:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="e3a59c8c-7546-4ea0-81f3-155e2410e2a9" file="trans-national-config.yaml" />
+
+
+
+
+
+
+	
+	
+	
+	
+</mule>

@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="test" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+    <types:type name="trans-national-sapi-resp-json" format="json">
+      <types:shape format="weave" example="examples/trans-national-sapi-resp-json.txt"><![CDATA[%dw 2.0
+
+type trans_national_sapi_resp_json = Array<{|  originLocation: {| locationCode: String |},   destinationLocation: {| locationCode: String |}|}> {"example": "[{\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\"}}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="tran-national-ext-resp-json" format="xml">
+      <types:example format="xml" element="ROUTELIST" location="examples/trans-national-sml-4.txt"/>
+    </types:type>
+    <types:type name="first-booking-papi-resp-json" format="json">
+      <types:shape format="weave" example="examples/first-booking-papi-resp-json.txt"><![CDATA[%dw 2.0
+
+type first_booking_papi_resp_json = Array<{|  companyCode: String,   originLocation: {|    locationCode: String,     locationDesc: String  |},   destinationLocation: {|    locationCode: String,     locationDesc: String  |}|}> {"example": "[{\\\"companyCode\\\":\\\"TransNational\\\",\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\",\\\"locationDesc\\\":\\\"Beauna Vista Singapore\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\",\\\"locationDesc\\\":\\\"Klang Malaysia\\\"}}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#1978980d-85aa-4266-8282-5655ab531e15">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="test"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#1157dfe9-7821-41fa-9568-4453d53edff8">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="tran-national-ext-resp-json"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="trans-national-sapi-resp-json"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
