@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:first-coach-sapi="http://www.mulesoft.org/schema/mule/first-coach-sapi" xmlns:trans-national-sapi="http://www.mulesoft.org/schema/mule/trans-national-sapi"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/trans-national-sapi http://www.mulesoft.org/schema/mule/trans-national-sapi/current/mule-trans-national-sapi.xsd
+http://www.mulesoft.org/schema/mule/first-coach-sapi http://www.mulesoft.org/schema/mule/first-coach-sapi/current/mule-first-coach-sapi.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+    <http:listener-config name="first-booking-papi-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}" connectionIdleTimeout="300000"/>
+    </http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="7fae473c-0717-45ad-90ad-177ddaaa7adc" basePath="${firstCoach.basepath}">
+		<http:request-connection protocol="${firstCoach.protocol}" host="${firstCoach.host}" port="${firstCoach.port}" >
+			<tls:context >
+				<tls:trust-store path="clienttruststore.jks" password="soft@123" type="jks"/>
+			</tls:context>
+			<http:authentication >
+				<http:basic-authentication username="admin1" password="soft@123" />
+			</http:authentication>
+		
+</http:request-connection>
+	</http:request-config>    
+	<trans-national-sapi:config name="Trans_national_sapi_Config" doc:name="Trans-national-sapi Config" doc:id="25ca1c53-f7a4-453a-8329-ee443f57e346" property_host="${transNational.host}" property_port="${transNational.port}" property_protocol="${transNational.protocol}" property_basePath="${transNational.basepath}" property_responseTimeout="${transNational.responsetimeout}"/>
+	<first-coach-sapi:config name="First_coach_sapi_Config" doc:name="First-coach-sapi Config" doc:id="7f070b91-9cca-49b2-83db-2e467ae81dc1" property_host="${firstCoach.host}" property_port="${firstCoach.port}" property_protocol="${firstCoach.protocol}" property_basePath="${firstCoach.basepath}" property_responseTimeout="${firstCoach.responsetimeout}" />
+	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="cad266e2-369b-46d9-8b13-3c4537641cfa" />
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="e8751275-150e-4e98-9216-d1dbc546ec0d" config-ref="ObjectStore_Config" maxEntries="${os.entries}" entryTtl="60" persistent="false" expirationInterval="5" expirationIntervalUnit="SECONDS"/>
+	<ee:object-store-caching-strategy name="Caching_Strategy" doc:name="Caching Strategy" doc:id="592e1466-41bb-4df5-984e-19b6a40e3958" objectStore="Object_store" >
+	</ee:object-store-caching-strategy>
+	<configuration-properties doc:name="Configuration properties" doc:id="970cb524-649b-4fde-9a62-dd10920bc948" file="location-code-map.yaml" />
+	<configuration-properties doc:name="Configuration properties" doc:id="0f23167e-0995-48dd-9585-7f176cfa6a2a" file="first-booking-config.yaml" />
+
+	
+</mule>

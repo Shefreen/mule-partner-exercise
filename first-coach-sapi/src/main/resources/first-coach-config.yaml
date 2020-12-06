@@ -1,0 +1,8 @@
+httpL:
+  port: "8082"
+  host: "localhost"
+  
+httpR:
+  port: "8091"
+  host: "localhost"
+  

@@ -1,0 +1,47 @@
+[
+  {
+"companyCode": "TransNational",
+"originLocation": {
+"locationCode": "MY-KUL"
+},
+"destinationLocation": {
+"locationCode": "SG-BEU"
+}
+},
+  {
+"companyCode": "TransNational",
+"originLocation": {
+"locationCode": "MY-KUL"
+},
+"destinationLocation": {
+"locationCode": "SG-KEP"
+}
+},
+  {
+"companyCode": "FirstCoach",
+"originLocation": {
+"locationCode": "BEN-SG"
+},
+"destinationLocation": {
+"locationCode": "KLG-MY"
+}
+},
+  {
+"companyCode": "FirstCoach",
+"originLocation": {
+"locationCode": "BEN-SG"
+},
+"destinationLocation": {
+"locationCode": "BU-MY"
+}
+},
+  {
+"companyCode": "FirstCoach",
+"originLocation": {
+"locationCode": "BEN-SG"
+},
+"destinationLocation": {
+"locationCode": "TAR-MY"
+}
+}
+]

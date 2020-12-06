@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="first-national-ext-rest-resp-json" format="json">
+      <types:shape format="weave" example="examples/first-coach-ext-rest-resp-json.txt"><![CDATA[%dw 2.0
+
+type first_national_ext_rest_resp_json = Array<{|  departureLocationCode: String,   arrivalLocationCode: String|}> {"example": "[{\\\"departureLocationCode\\\":\\\"BEN-SG\\\",\\\"arrivalLocationCode\\\":\\\"KLG-MY\\\"},{\\\"departureLocationCode\\\":\\\"BEN-SG\\\",\\\"arrivalLocationCode\\\":\\\"BU-MY\\\"},{\\\"departureLocationCode\\\":\\\"BEN-SG\\\",\\\"arrivalLocationCode\\\":\\\"TAR-MY\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="first-coach-sapi-resp-json" format="json">
+      <types:shape format="weave" example="examples/first-coach-sapi-resp-json.txt"><![CDATA[%dw 2.0
+
+type first_coach_sapi_resp_json = Array<{|  originLocation: {| locationCode: String |},   destinationLocation: {| locationCode: String |}|}> {"example": "[{\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\"}}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="first-coach-schedules-ext-resp-json" format="json">
+      <types:shape format="weave" example="examples/first-coach-schedules-ext-resp-json.txt"><![CDATA[%dw 2.0
+
+type first_coach_schedules_ext_resp_json = {|
+  schedules: Array<{|    departureDateTime: String,     fromLocation: String,     toLocation: String,     availableSeats: Number {"typeId": "int"}  |}>
+|} {"example": "{\\\"schedules\\\":[{\\\"departureDateTime\\\":\\\"2019-04-30T16:41:41.090Z\\\",\\\"fromLocation\\\":\\\"BEN-SG\\\",\\\"toLocation\\\":\\\"KLG-MY\\\",\\\"availableSeats\\\":50},{\\\"departureDateTime\\\":\\\"2019-04-30T18:41:41.090Z\\\",\\\"fromLocation\\\":\\\"BEN-SG\\\",\\\"toLocation\\\":\\\"KLG-MY\\\",\\\"availableSeats\\\":10}]}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="first-coach-schedules-sapi-resp-json" format="json">
+      <types:shape format="weave" example="examples/first-coach-schedules-sapi-resp-json.txt"><![CDATA[%dw 2.0
+
+type first_coach_schedules_sapi_resp_json = {|
+  departureSchedules: Array<{|    availableSeats: Number {"typeId": "int"},     departureDateTime: String,     travelRoute: {|      destinationLocation: {| locationCode: String |},       originLocation: {| locationCode: String |}    |}  |}>
+|} {"example": "{\\\"departureSchedules\\\":[{\\\"availableSeats\\\":20,\\\"departureDateTime\\\":\\\"2019-04-30T16:41:41.090Z\\\",\\\"travelRoute\\\":{\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\"},\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\"}}},{\\\"availableSeats\\\":30,\\\"departureDateTime\\\":\\\"2019-04-30T16:41:41.090Z\\\",\\\"travelRoute\\\":{\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\"},\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BL-SG\\\"}}}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#44814ca8-456e-4e69-9021-92c0c6b1e932">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="first-national-ext-rest-resp-json"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="first-coach-sapi-resp-json"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#e5492d2a-6399-48da-8617-ee6cc0f4794d">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="first-coach-schedules-ext-resp-json"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="first-coach-schedules-sapi-resp-json"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

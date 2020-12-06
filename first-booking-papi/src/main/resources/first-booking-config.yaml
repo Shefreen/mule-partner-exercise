@@ -1,0 +1,23 @@
+http:
+  port: "8083"
+  host: "localhost"  
+
+transNational:
+  port: "8081"
+  host: "localhost"
+  protocol: "HTTP"
+  basepath: "/api"
+  responsetimeout: "30000"
+  
+firstCoach:
+  port: "8082"
+  host: "localhost"
+  protocol: "HTTPS"
+  basepath: "/api"
+  responsetimeout: "30000"
+  
+os:
+  entries: "1"
+  ttl: "60"
+  expiration: "5"
+  

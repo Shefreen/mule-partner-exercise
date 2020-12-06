@@ -1,0 +1,27 @@
+location:
+  code:
+    MY-KUL : KUL-MY
+    SG-BEU : BEU-SG
+    SG-KEP : KEP-SG
+    BEN-SG : BEN-SG
+    KLG-MY : KLG-MY
+    BU-MY : BU-MY
+    TAR-MY : TAR-MY
+    BL-SG : BL-SG
+
+
+
+    
+  description:
+    MY-KUL : Kualalumpur Malaysia
+    SG-BEU : Beuna Vista Singapore
+    SG-KEP : Kepler Singapore
+    BEN-SG : Bengaluru Malaysia
+    KLG-MY : Klang Malaysia
+    BU-MY : Busted Malaysia
+    TAR-MY : Tarzan Malaysia
+    BL-SG : Blackett Singapore
+
+
+    
+  

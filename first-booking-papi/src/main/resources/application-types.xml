@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="first-coach-papi-input-json" format="json">
+      <types:shape format="weave" example="examples/first-coach-papi-input-json.txt"><![CDATA[%dw 2.0
+
+type first_coach_papi_input_json = Array<{|  originLocation: {| locationCode: String |},   destinationLocation: {| locationCode: String |}|}> {"example": "[{\\\"originLocation\\\":{\\\"locationCode\\\":\\\"MY-KUL\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"SG-BEU\\\"}},{\\\"originLocation\\\":{\\\"locationCode\\\":\\\"MY-KUL\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"SG-BTS\\\"}}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="first-booking-papi-resp-json" format="json">
+      <types:shape format="weave" example="examples/first-booking-papi-resp-json.txt"><![CDATA[%dw 2.0
+
+type first_booking_papi_resp_json = Array<{|  companyCode: String,   originLocation: {|    locationCode: String,     locationDesc: String  |},   destinationLocation: {|    locationCode: String,     locationDesc: String  |}|}> {"example": "[{\\\"companyCode\\\":\\\"TransNational\\\",\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\",\\\"locationDesc\\\":\\\"Beauna Vista Singapore\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\",\\\"locationDesc\\\":\\\"Klang Malaysia\\\"}}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="first-booking-papi-flatten-output-json" format="json">
+      <types:shape format="weave" example="examples/first-coach-papi-flatten-output-json.txt"><![CDATA[%dw 2.0
+
+type first_booking_papi_flatten_output_json = Array<{|  companyCode: String,   originLocation: {| locationCode: String |},   destinationLocation: {| locationCode: String |}|}> {"example": "[{\\\"companyCode\\\":\\\"TransNational\\\",\\\"originLocation\\\":{\\\"locationCode\\\":\\\"MY-KUL\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"SG-BEU\\\"}},{\\\"companyCode\\\":\\\"TransNational\\\",\\\"originLocation\\\":{\\\"locationCode\\\":\\\"MY-KUL\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"SG-KEP\\\"}},{\\\"companyCode\\\":\\\"FirstCoach\\\",\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\"}},{\\\"companyCode\\\":\\\"FirstCoach\\\",\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"BU-MY\\\"}},{\\\"companyCode\\\":\\\"FirstCoach\\\",\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"TAR-MY\\\"}}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="first-booking-papi-schedules-transform-input" format="json">
+      <types:shape format="weave" example="examples/first-coach-schedules-sapi-resp-json.txt"><![CDATA[%dw 2.0
+
+type first_booking_papi_schedules_transform_input = {|
+  departureSchedules: Array<{|    availableSeats: Number {"typeId": "int"},     departureDateTime: String,     travelRoute: {|      destinationLocation: {| locationCode: String |},       originLocation: {| locationCode: String |}    |}  |}>
+|} {"example": "{\\\"departureSchedules\\\":[{\\\"availableSeats\\\":20,\\\"departureDateTime\\\":\\\"2019-04-30T16:41:41.090Z\\\",\\\"travelRoute\\\":{\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\"},\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\"}}},{\\\"availableSeats\\\":30,\\\"departureDateTime\\\":\\\"2019-04-30T16:41:41.090Z\\\",\\\"travelRoute\\\":{\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\"},\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BL-SG\\\"}}}]}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="first-booking-papi-schedules-transform-output-json" format="json">
+      <types:shape format="weave" example="examples/first-booking-papi-schedules-output.json"><![CDATA[%dw 2.0
+
+type first_booking_papi_schedules_transform_output_json = {|
+  departureSchedules: Array<{|    availableSeats: Number {"typeId": "int"},     departureDateTime: String,     travelRoute: {|      destinationLocation: {|        locationCode: String,         locationDesc: String      |},       originLocation: {|        locationCode: String,         locationDesc: String      |}    |}  |}>
+|} {"example": "{\\\"departureSchedules\\\":[{\\\"availableSeats\\\":20,\\\"departureDateTime\\\":\\\"2019-04-30T16:41:41\\\",\\\"travelRoute\\\":{\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\",\\\"locationDesc\\\":\\\"Klang Malaysia\\\"},\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\",\\\"locationDesc\\\":\\\"Beauna Vista Singapore\\\"}}},{\\\"availableSeats\\\":30,\\\"departureDateTime\\\":\\\"2019-04-30T18:41:41\\\",\\\"travelRoute\\\":{\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\",\\\"locationDesc\\\":\\\"Klang Malaysia\\\"},\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BL-SG\\\",\\\"locationDesc\\\":\\\"Beauna Vista Singapore\\\"}}}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#55de498e-f618-40fc-a3ba-37b82b0c8371">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="first-coach-papi-input-json[]"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="first-booking-papi-resp-json[]"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#6f3fe2d0-1f90-4d9f-a2ba-7456664e30c4"/>
+  <types:enrichment select="#9ca05599-16c9-4ce5-874e-36ecbcc2dfa8">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="first-booking-papi-schedules-transform-input"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="first-booking-papi-schedules-transform-output-json"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

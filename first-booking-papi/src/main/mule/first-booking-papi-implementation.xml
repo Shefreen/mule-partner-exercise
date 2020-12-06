@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:first-coach-sapi="http://www.mulesoft.org/schema/mule/first-coach-sapi" xmlns:trans-national-sapi="http://www.mulesoft.org/schema/mule/trans-national-sapi" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/trans-national-sapi http://www.mulesoft.org/schema/mule/trans-national-sapi/current/mule-trans-national-sapi.xsd
+http://www.mulesoft.org/schema/mule/first-coach-sapi http://www.mulesoft.org/schema/mule/first-coach-sapi/current/mule-first-coach-sapi.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+
+
+	<flow name="call-combined-routes" doc:id="44dee1a9-5d22-4703-82c3-b0e402fdbb79">
+		<logger level="INFO" doc:name="Logger" doc:id="665f402b-d346-4fdd-9299-2a8f8f2db3e9" message="first booking papi input -routes" category="info"/>
+		<ee:cache doc:name="Cache" doc:id="b441f0eb-8df9-4b5d-b4f7-9767c725447c" cachingStrategy-ref="Caching_Strategy">
+			<logger level="INFO" doc:name="Logger" doc:id="520fe020-c0a9-4391-8850-33326c60a2d1" message="first booking papi cache start - routes" category="info"/>
+			<scatter-gather doc:name="Scatter-Gather" doc:id="ce1bfa0d-54db-43ea-be3e-0b1afdd19bd0">
+			<route>
+				<flow-ref doc:name="Flow Reference" doc:id="b3a64295-8764-4b5f-962e-103086301f0b" name="call-trans-national-routes" />
+					<ee:transform doc:name="Transform Message" doc:id="55de498e-f618-40fc-a3ba-37b82b0c8371" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	companyCode: 'TransNational',
+	originLocation: {
+		locationCode: payload01.originLocation.locationCode
+	},
+	destinationLocation: {
+		locationCode: payload01.destinationLocation.locationCode
+	}
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="c68af7b2-9624-405d-b8db-96961cdc71b1" message="first booking papi - scatter gather -trans national transform complete" category="info"/>
+			</route>
+			<route>
+				<flow-ref doc:name="Flow Reference" doc:id="d529a9ae-5d34-4c8d-93a8-208384924721" name="call-first-coach-routes" />
+					<ee:transform doc:name="Transform Message" doc:id="5c720c57-640b-4457-aea4-81166008392a" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	companyCode: 'FirstCoach',
+	originLocation: {
+		locationCode: payload01.originLocation.locationCode
+	},
+	destinationLocation: {
+		locationCode: payload01.destinationLocation.locationCode
+	}
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="f8ec969b-6ca7-4040-8dee-bc5a2f706756" message="first booking papi - scatter gather -first coach transform complete" category="info"/>
+			</route>
+		</scatter-gather>
+			<logger level="INFO" doc:name="Logger" doc:id="5fc9e30d-c698-4f65-996f-f7af9e35a181" message="first booking papi - routes - scatter gather output" category="info"/>
+			<ee:transform doc:name="Transform Message" doc:id="4b69ca65-4e56-4fbc-a1f7-ca5283fed09f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+flatten(payload..payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="6f3fe2d0-1f90-4d9f-a2ba-7456664e30c4">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	companyCode: payload01.companyCode,
+	originLocation: {
+		locationCode: p('location.code.' ++ payload01.originLocation.locationCode),
+		locationDesc: p('location.description.' ++ payload01.originLocation.locationCode)
+	},
+	destinationLocation: {
+		locationCode: p('location.code.' ++ payload01.destinationLocation.locationCode),
+		locationDesc: p('location.description.' ++ payload01.destinationLocation.locationCode)
+	}
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="45018ccb-88e1-4f27-bae2-f0a971059793" message="first booking papi - routes - mapping complete" category="info"/>
+		</ee:cache>
+		<logger level="INFO" doc:name="Logger" doc:id="87d3ed51-ee1d-4699-a84b-c63137e80fae" message="first booking papi - routes - after cache" category="info"/>
+		<choice doc:name="Choice" doc:id="34187d6c-465c-46f6-8686-296019a3dc59">
+				<when expression="#[vars.companyCode != null]">
+					<choice doc:name="Choice" doc:id="2b4bca46-2b41-49b5-8093-bc4ba609cc8a">
+						<when expression="#[vars.departureLocationCode != null]">
+							<ee:transform doc:name="Transform Message" doc:id="1674f1b3-09c7-4c9f-8afb-be2bf12479ef">
+								<ee:message>
+									<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload filter $.companyCode == vars.companyCode filter $.originLocation.locationCode == vars.departureLocationCode]]></ee:set-payload>
+								</ee:message>
+							</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="021ca314-11ce-45f6-b54d-0025eb5d88e2" message="first booking papi - routes - choice - both filters" category="info"/>
+						</when>
+						<otherwise>
+							<ee:transform doc:name="Transform Message" doc:id="e7515b25-6f15-4305-9ca2-6bf05e2d35db">
+								<ee:message>
+									<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload filter $.companyCode == vars.companyCode ]]></ee:set-payload>
+								</ee:message>
+							</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="7629bf33-251d-4463-9ccc-b9bcab7e047e" message="first booking papi - routes - choice - company code filter" category="info"/>
+						</otherwise>
+					</choice>
+				</when>
+			<otherwise >
+				<choice doc:name="Choice" doc:id="a8b6e2c5-3a78-4981-9fca-9dadc58d2bbd" >
+					<when expression="#[vars.departureLocationCode != null]">
+						<ee:transform doc:name="Transform Message" doc:id="d8105db2-dd63-4595-908f-15af296dc511" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter $.originLocation.locationCode == vars.departureLocationCode]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="7e4c2614-0f5d-4ea2-afbb-e4d83828cf4c" message="first booking papi - routes - choice - location code filter" category="info"/>
+					</when>
+					<otherwise >
+						<ee:transform doc:name="Transform Message" doc:id="d20fc722-b966-4105-be3c-5c77a1aee48c" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="ece47780-8fd3-439b-bdfe-90e913c8fc3c" message="first booking papi - routes - choice - no filter" category="info"/>
+					</otherwise>
+				</choice>
+			</otherwise>
+			</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="57e44085-aad9-4099-a6b6-b733605a6b14" message="first booking papi - routes - filtered final output" category="info"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="eda896ab-0afb-4f48-8a8f-d810df9274c6" >
+				<logger level="INFO" doc:name="Logger" doc:id="3588ac6b-c20f-4829-8843-6d4496954b1d" message='#[{"error source" : "first booking papi - routes main flow",
+"error description" : error.description}]'/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="call-trans-national-routes" doc:id="5afa1623-77d3-4b55-895d-9089cd607ffa" >
+		<logger level="INFO" doc:name="Logger" doc:id="6441d844-8309-4922-ac10-a27cec3e3893" message="first booking papi - trans national flow" category="info"/>
+		<trans-national-sapi:get-routes-by-transport-type-transport-company doc:name="Get routes by transport type transport company" doc:id="ece8ec39-cd43-4c9e-8f88-2ddb0e082a8f" config-ref="Trans_national_sapi_Config" transport-type="#[vars.transportType]" transport-company="transNational"/>
+		<logger level="INFO" doc:name="Logger" doc:id="fae13692-f24f-45cb-851d-4663d6298dbb" message="first booking papi - trans national flow response" category="info"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8b833055-8088-46f4-ab1e-7bef8070f71b" >
+				<logger level="INFO" doc:name="Logger" doc:id="8cb2897a-c98d-43b1-9234-7da144a66547" message='#[{"error source" : "first booking papi - trans national flow",
+"error description" : error.description}]' category="errors"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="call-first-coach-routes" doc:id="fd108dad-09be-41f5-9e5a-d01d0c530021" >
+		<logger level="INFO" doc:name="Logger" doc:id="6c924daa-9f06-4c76-a1cb-4c1dc0b40f7d" message="first booking papi - first coach routes flow" category="info"/>
+		<http:request method="GET" doc:name="Request" doc:id="e50a9708-cffa-4d8e-a439-52ba3c8301cd" config-ref="HTTP_Request_configuration" path="/{transportType}/firstCoach/routes">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"transportType" : vars.transportType
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="c1769ef9-8f3a-4724-af4a-a1a5331b2bbe" message="first booking papi - first coach routes flow response" category="info"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1782fc0e-3a92-45fc-bdd1-a03185501a20" >
+				<logger level="INFO" doc:name="Logger" doc:id="c162b1f1-b296-4aed-a259-d9d68f017493" message='#[{"error source" : "first booking papi - first coach routes flow",
+"error description" : error.description}]' category="errors"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="call-combined-schedules" doc:id="fbdc552d-05fb-400a-bbe6-1089b068bef0" >
+		<choice doc:name="Choice" doc:id="9939c50f-15f7-4d3c-bb81-532496cdf691" >
+			<when expression='#[vars.companyCode == "TransNational"]'>
+				<set-payload value="Sorry, booking to Trans National transport is service is not available. Please try with First Coach Transport Company" doc:name="Set Payload" doc:id="82c16dc6-32a8-40da-8ad5-e07d29f914c1" />
+			</when>
+			<otherwise >
+				<flow-ref doc:name="Flow Reference" doc:id="a86264f3-e506-4d64-a475-26b6460a2bec" name="call-first-coach-schedules" />
+				<ee:transform doc:name="Transform Message" doc:id="9ca05599-16c9-4ce5-874e-36ecbcc2dfa8">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	departureSchedules: payload.departureSchedules map ( departureSchedule , indexOfDepartureSchedule ) -> {
+		availableSeats: departureSchedule.availableSeats,
+		departureDateTime: departureSchedule.departureDateTime,
+		travelRoute: {
+			destinationLocation: {
+				locationCode: p('location.code.' ++ departureSchedule.travelRoute.destinationLocation.locationCode),
+				locationDesc: p('location.description.' ++ departureSchedule.travelRoute.destinationLocation.locationCode)
+			},
+			originLocation: {
+				locationCode: p('location.code.' ++ departureSchedule.travelRoute.originLocation.locationCode),
+				locationDesc: p('location.description.' ++ departureSchedule.travelRoute.originLocation.locationCode)
+			}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</otherwise>
+		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e2c418b2-ceda-4360-9a04-97398563149e" >
+				<logger level="INFO" doc:name="Logger" doc:id="ea97d6ff-ca87-4cac-a494-cc0fb3a1028d" message='#[{"error source" : "first booking papi - schedules main flow",
+"error description" : error.description}]' category="errors"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="call-first-coach-schedules" doc:id="7e6495e3-3d2b-496d-9e72-1ee99591e3f5" >
+		<logger level="INFO" doc:name="Logger" doc:id="6e8ca1b9-f32b-41b3-81dc-cbcfe1f13a49" category="info" message="first booking papi - first coach schedules flow"/>
+		<http:request method="GET" doc:name="Request" doc:id="657abe65-5370-4081-a692-22bb22e31bcc" config-ref="HTTP_Request_configuration" path="/{transportType}/firstCoach/schedules">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"transportType" : vars.transportType
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"departureLocationCode" : vars.departureLocationCode,
+	"destinationLocationCode" : vars.destinationLocationCode
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="36ec5b8c-a872-41d4-865a-efcb6a9ea7cd" message="first booking papi - first coach schedules flow response" category="info"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c2fa621b-91cd-4769-8776-5cc270c71ce8" >
+				<logger level="INFO" doc:name="Logger" doc:id="921735b8-3b6f-4a40-a095-1dcd2528c29d" category="errors" message='#[{"error source" : "first booking papi - first coach schedules flow",
+"error description" : error.description}]'/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

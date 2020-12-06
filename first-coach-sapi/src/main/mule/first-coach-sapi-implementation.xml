@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="first-coach-sapi-routes" doc:id="2b29fe6e-6761-480d-99f1-ffe4cf9e7b4e" >
+		<http:basic-security-filter doc:name="Basic security filter" doc:id="a1742705-7bdc-4905-83f6-c1a9637121db" realm="validate credentials"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5ca32703-319a-4fb6-a978-2926930ebc0f" message="first coach sapi input - routes" category="info"/>
+		<try doc:name="Try" doc:id="98f6b280-3534-4bed-8232-626a4dc060a8" >
+			<http:request method="GET" doc:name="Request" doc:id="e0cbf53d-c259-4f05-9669-193d6639e1d4" config-ref="HTTP_Request_configuration" path="/fetchRoutes" />
+			<logger level="INFO" doc:name="Logger" doc:id="54d3e6dd-208c-4110-96d5-139eeea6f13f" message="first coach system response - routes" category="info" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0ebe0819-6833-4f96-b3a3-73b364f0263e" >
+					<logger level="INFO" doc:name="Logger" doc:id="a0f1f1d1-ef6d-4272-adb9-5d7adb52f30a" category="errors" message='#[{"error source" : "first coach system error",
+"error description" : error.description}]'/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="44814ca8-456e-4e69-9021-92c0c6b1e932" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	originLocation: {
+		locationCode: payload01.departureLocationCode
+	},
+	destinationLocation: {
+		locationCode: payload01.arrivalLocationCode
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="40bf7293-03dc-46e5-a844-3aa71a4f22f5" message="first coach sapi output - routes" category="info"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="827a72c4-7d03-4feb-9408-1791fd62529c" >
+				<logger level="INFO" doc:name="Logger" doc:id="190253dc-6c5e-4246-bf82-bd3b4ad865e2" message='#[{"error source" : "first coach sapi routes flow error",
+"error description" : error.description}]' category="errors"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="first-coach-sapi-schedules" doc:id="7b9e20bd-b9fd-4764-88b4-f2f3f4a131b3" >
+		<logger level="INFO" doc:name="Logger" doc:id="41fabf90-5fbb-4983-88d3-0e2187bfc05b" message="first coach sapi input - schedules" category="info"/>
+		<try doc:name="Try" doc:id="16f3e89c-7611-4dd2-bfdb-b0436ed044b0" >
+			<http:request method="POST" doc:name="Request" doc:id="33866791-2c36-470b-8565-50b40f96cf3e" config-ref="HTTP_Request_configuration" path="/getSchedules">
+			<http:body><![CDATA[#[{ "originLocation": { "locationCode": attributes.queryParams.departureLocationCode }, "destinationLocation": { "locationCode": attributes.queryParams.destinationLocationCode } }]]]></http:body>
+		</http:request>
+			<logger level="INFO" doc:name="Logger" doc:id="62802ae3-e053-42cb-9094-e7ce04650760" message="first coach system response - schedules" category="info"/>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c3cbc9a7-b59d-46a6-bc58-6678e88eb261" >
+					<logger level="INFO" doc:name="Logger" doc:id="c8d4d164-e2be-4fd8-9384-84e1a0edbce7" message='#[{"error source" : "first coach system error",
+"error description" : error.description}]'/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="e5492d2a-6399-48da-8617-ee6cc0f4794d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	departureSchedules: payload.schedules map ( schedule , indexOfSchedule ) -> {
+		availableSeats: schedule.availableSeats,
+		departureDateTime: schedule.departureDateTime,
+		travelRoute: {
+			destinationLocation: {
+				locationCode: schedule.toLocation
+			},
+			originLocation: {
+				locationCode: schedule.fromLocation
+			}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="65c99683-4d58-4101-9cf8-de368ff355f0" message="first coach sapi output - schedules" category="info"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="55901307-4583-4ec1-acf5-31aac6842172" >
+				<logger level="INFO" doc:name="Logger" doc:id="935af3ff-866e-4597-a892-3f771dfb15d1" message='#[{"error source" : "first coach sapi schedules flow",
+"error description" : error.description}]' category="errors"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

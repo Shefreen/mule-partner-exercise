@@ -1,0 +1,18 @@
+[
+  {
+    "originLocation": {
+      "locationCode": "MY-KUL"
+    },
+    "destinationLocation": {
+      "locationCode": "SG-BEU"
+    }
+  },
+  {
+    "originLocation": {
+      "locationCode": "MY-KUL"
+    },
+    "destinationLocation": {
+      "locationCode": "SG-BTS"
+    }
+  }
+]
